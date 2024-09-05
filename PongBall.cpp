@@ -1,0 +1,88 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+
+#include "PongBall.h"
+#include "PaperSpriteComponent.h"
+#include "Components/BoxComponent.h"
+
+// Sets default values
+APongBall::APongBall()
+{
+ 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	PrimaryActorTick.bCanEverTick = true;
+	MySprite = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("My Image"));
+	RootComponent = MySprite;
+	MyCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("My HitBox"));
+	MyCollider->SetBoxExtent(FVector(32,32,32));
+	MyCollider->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	MyCollider->SetupAttachment(RootComponent);
+
+	MinX = -2048.0f; // Adjust based on your game's screen size
+	MaxX = 2048.0f; // Adjust based on your game's screen size
+}
+
+// Called when the game starts or when spawned
+void APongBall::BeginPlay()
+{
+	Super::BeginPlay();
+
+	MyVelocity = FVector(300,0,300);
+	HalfPlayFieldHeight = (2048 / 1.777) / 2;
+	HalfPlayFieldWidth = (2048/2);
+
+	MyCollider->OnComponentBeginOverlap.AddDynamic(this, &APongBall::OnCollision);
+	
+	
+}
+
+// Called every frame
+void APongBall::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+	FVector MyUpdatedLocation = GetActorLocation()+(MyVelocity*DeltaTime);
+
+	if (MyUpdatedLocation.Z + 32 > HalfPlayFieldHeight)
+	{
+		MyVelocity.Z = -400;
+	}
+	else if (MyUpdatedLocation.Z - 32 < -HalfPlayFieldHeight)
+	{
+		MyVelocity.Z = 400;
+	}
+	if(MyUpdatedLocation.X - 32 > HalfPlayFieldWidth)
+	{
+		MyVelocity.X = -400;
+		MyUpdatedLocation = FVector(0,0,0);
+	}	
+	else if(MyUpdatedLocation.X - 32 < -HalfPlayFieldWidth)
+	{
+		MyVelocity.X = 400;
+		MyUpdatedLocation = FVector(0,0,0);
+	}
+	ResetIfOutOfBounds();
+	SetActorLocation(MyUpdatedLocation);
+};
+
+void APongBall::ResetIfOutOfBounds()
+{
+	FVector CurrentPosition = GetActorLocation();
+	if (CurrentPosition.X < MinX || CurrentPosition.X > MaxX)
+	{
+		// Reset ball position to the center of the screen
+		SetActorLocation(FVector::ZeroVector);
+	}
+}
+void APongBall::OnCollision(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+	int OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	UE_LOG(LogTemp,Warning,TEXT("I have smashed something!"));
+	FVector BallPosition = GetActorLocation();
+	if(BallPosition.X > 0)
+	{
+		MyVelocity.X = -400;
+	}
+	else if (BallPosition.X < 0)
+	{
+		MyVelocity.X = 400;
+	}
+};
