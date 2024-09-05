@@ -13,6 +13,9 @@ Mario: A reimagining of a classic platformer, featuring character movement, jump
 
 Technologies Used:
 Unreal Engine 5: Leveraged the power of UE5 to create visually appealing and performance-optimized games.
+
 C++: All game logic and mechanics are implemented in C++, making full use of Unreal Engine’s powerful game development framework.
+
 2D Physics & Collision Detection: Implemented physics and collision systems for each game to ensure smooth gameplay and accurate interactions.
+
 This portfolio demonstrates my skills in game design, physics implementation, and software development, showcasing the full lifecycle of game creation from initial concept to playable demos. Feel free to explore the codebase and contribute!
